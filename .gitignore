@@ -2,3 +2,4 @@ __pycache__
 venv3
 /doc/*
 htmlcov
+.vscode
