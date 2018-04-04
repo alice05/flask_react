@@ -3,3 +3,5 @@ venv3
 /doc/*
 htmlcov
 .vscode
+node_modules/*
+__snapshots__
