@@ -12,38 +12,56 @@ from project.tests.utils import add_user
 class TestUserModel(BaseTestCase):
 
     def test_add_user(self):
-        user = add_user('justatest', 'test@test.com')
-        db.session.add(user)
-        db.session.commit()
+        user = add_user('justatest', 'test@test.com', 'mypwd')
+        # db.session.add(user)
+        # db.session.commit()
         self.assertTrue(user.id)
         self.assertEqual(user.username, 'justatest')
         self.assertEqual(user.email, 'test@test.com')
         self.assertTrue(user.active)
 
     def test_add_user_duplicate_username(self):
-        user = add_user('justatest', 'test@test.com')
+        user = add_user('justatest', 'test@test.com', ',mypwd')
         db.session.add(user)
         db.session.commit()
         duplicate_user = User(
             username='justatest',
             email='test@test2.com',
+            password='mypwd'
         )
         db.session.add(duplicate_user)
         self.assertRaises(IntegrityError, db.session.commit)
 
     def test_add_user_duplicate_email(self):
-        user = add_user('justatest', 'test@test.com')
+        user = add_user('justatest', 'test@test.com', 'mypwd')
         db.session.add(user)
         db.session.commit()
         duplicate_user = User(
             username='justanothertest',
             email='test@test.com',
+            password='mypwd'
         )
         db.session.add(duplicate_user)
         self.assertRaises(IntegrityError, db.session.commit)
 
     def test_to_json(self):
-        user = add_user('justatest', 'test@test.com')
+        user = add_user('justatest', 'test@test.com', 'mypwd')
         db.session.add(user)
         db.session.commit()
         self.assertTrue(isinstance(user.to_json(), dict))
+
+    def test_passwords_are_random(self):
+        user_one = add_user('santosh1', 'santosh1@gmail.com', 'password1')
+        user_two = add_user('santosh2', 'santosh2@gmail.com', 'password1')
+        self.assertNotEqual(user_one.password, user_two.password)
+
+    def test_encode_auth_token(self):
+        user = add_user('santosh', 'test@test.com', 'test')
+        auth_token = user.encode_auth_token(user.id)
+        self.assertTrue(isinstance(auth_token, bytes))
+
+    def test_decode_auth_token(self):
+        user = add_user('santosh', 'santosh@tm.com', 'test')
+        auth_token = user.encode_auth_token(user.id)
+        self.assertTrue(isinstance(auth_token, bytes))
+        self.assertEqual(User.decode_auth_token(auth_token), user.id)
