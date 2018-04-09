@@ -12,13 +12,13 @@ from project.tests.utils import add_user
 class TestUserModel(BaseTestCase):
 
     def test_add_user(self):
-        user = add_user('justatest', 'test@test.com', 'mypwd')
-        # db.session.add(user)
-        # db.session.commit()
+        user = add_user('justatest', 'test@test.com', 'test')
         self.assertTrue(user.id)
         self.assertEqual(user.username, 'justatest')
         self.assertEqual(user.email, 'test@test.com')
+        self.assertTrue(user.password)
         self.assertTrue(user.active)
+        self.assertFalse(user.admin)
 
     def test_add_user_duplicate_username(self):
         user = add_user('justatest', 'test@test.com', ',mypwd')
